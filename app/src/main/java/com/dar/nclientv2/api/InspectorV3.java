@@ -219,7 +219,7 @@ public class InspectorV3 extends Thread implements Parcelable {
         dest.writeString(query);
         dest.writeString(url);
         dest.writeByte(requestType.ordinal());
-        if (galleries == null || galleries.size() == 0)
+        if (galleries == null || galleries.isEmpty())
             dest.writeByte((byte) GenericGallery.Type.SIMPLE.ordinal());
         else dest.writeByte((byte) galleries.get(0).getType().ordinal());
         dest.writeTypedList(galleries);
@@ -229,7 +229,7 @@ public class InspectorV3 extends Thread implements Parcelable {
 
     public String getSearchTitle() {
         //triggered only when in searchMode
-        if (query.length() > 0) return query;
+        if (!query.isEmpty()) return query;
         return url.replace(Utility.getBaseUrl() + "search/?q=", "").replace('+', ' ');
     }
 
@@ -278,7 +278,7 @@ public class InspectorV3 extends Thread implements Parcelable {
         else if (requestType == ApiRequestType.BYSINGLE) builder.append("g/").append(id);
         else if (requestType == ApiRequestType.FAVORITE) {
             builder.append("favorites/");
-            if (query != null && query.length() > 0)
+            if (query != null && !query.isEmpty())
                 builder.append("?q=").append(query).append('&');
             else builder.append('?');
             builder.append("page=").append(page);
@@ -369,12 +369,23 @@ public class InspectorV3 extends Thread implements Parcelable {
         galleries.addAll(galleryTag);
     }
 
+    private Element getGalleryScriptElement(
+        final Elements elements
+    ) throws InvalidResponseException {
+        for (final Element element : elements) {
+            if (element.toString().contains("window._gallery")) {
+                return element;
+            }
+        }
+        throw new InvalidResponseException();
+    }
+
     private void doSingle(Element document) throws IOException, InvalidResponseException {
         galleries = new ArrayList<>(1);
         Elements scripts = document.getElementsByTag("script");
         if (scripts.isEmpty())
             throw new InvalidResponseException();
-        String json = trimScriptTag(scripts.get(1).html());
+        String json = trimScriptTag(getGalleryScriptElement(scripts).html());
         if (json == null)
             throw new InvalidResponseException();
         Element relContainer = document.getElementById("related-container");
@@ -409,7 +420,7 @@ public class InspectorV3 extends Thread implements Parcelable {
         galleries = new ArrayList<>(gal.size());
         for (Element e : gal) galleries.add(new SimpleGallery(context.get(), e));
         gal = document.getElementsByClass("last");
-        pageCount = gal.size() == 0 ? Math.max(1, page) : findTotal(gal.last());
+        pageCount = gal.isEmpty() ? Math.max(1, page) : findTotal(gal.last());
         if (document.getElementById("content") == null)
             throw new InvalidResponseException();
         if (Global.isExactTagMatch())
