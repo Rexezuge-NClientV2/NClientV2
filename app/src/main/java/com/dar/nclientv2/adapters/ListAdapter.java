@@ -1,5 +1,7 @@
 package com.dar.nclientv2.adapters;
 
+import static java.util.Objects.isNull;
+
 import android.content.Intent;
 import android.os.Build;
 import android.text.Layout;
@@ -65,6 +67,9 @@ public class ListAdapter extends RecyclerView.Adapter<GenericAdapter.ViewHolder>
         if (context.isFinishing()) return;
         try {
             if (Global.isDestroyed(context)) return;
+            if (isNull(ent.getThumbnail())) {
+                return;
+            }
 
             ImageDownloadUtility.loadImage(context, ent.getThumbnail(), holder.imgView);
         } catch (VerifyError ignore) {

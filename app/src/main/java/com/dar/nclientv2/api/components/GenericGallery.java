@@ -10,7 +10,8 @@ import com.dar.nclientv2.utility.Utility;
 
 import java.util.Locale;
 
-public abstract class GenericGallery implements Parcelable {
+public abstract class GenericGallery
+    implements Parcelable {
 
     public abstract int getId();
 
