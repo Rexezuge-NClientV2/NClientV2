@@ -78,7 +78,8 @@ public class SimpleGallery
         a = e.getElementsByTag("img").first();
         temp = a.hasAttr("data-src") ? a.attr("data-src") : a.attr("src");
         mediaId = Integer.parseInt(temp.substring(temp.indexOf("galleries") + 10, temp.lastIndexOf('/')));
-        thumbnail = Page.charToExt(temp.charAt(temp.length() - 3));
+        final String imgExtension = temp.substring(temp.lastIndexOf('.') + 1);
+        thumbnail = Page.charToExt(imgExtension.charAt(0));
         title = e.getElementsByTag("div").first().text();
         if (context != null && id > Global.getMaxId()) Global.updateMaxId(context, id);
     }
